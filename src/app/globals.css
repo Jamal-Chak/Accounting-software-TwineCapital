@@ -1,26 +1,40 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@layer base {
+    :root {
+        /* Zoho Books-inspired Color Palette */
+        --color-primary: 59 130 246;
+        /* Blue 500 */
+        --color-background: 255 255 255;
+        --color-foreground: 17 24 39;
+    }
+
+    body {
+        background-color: rgb(var(--color-background));
+        color: rgb(var(--color-foreground));
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+    }
+
+    * {
+        border-color: rgb(229 231 235);
+        /* gray-200 */
+        border-style: solid;
+        border-width: 0;
+    }
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+@layer utilities {
+    .text-balance {
+        text-wrap: balance;
+    }
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Card utilities for legacy components */
+.card-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid rgb(229 231 235);
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+.card-body {
+    padding: 1.5rem;
 }

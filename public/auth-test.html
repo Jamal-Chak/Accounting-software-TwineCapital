@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TwineCapital - Auth Test Tool</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0a0a0a;
+            color: #fff;
+            padding: 40px 20px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #3b82f6,#6366f1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .subtitle {
+            color: #999;
+            margin-bottom: 40px;
+        }
+        .section {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+        .section h2 {
+            font-size: 1.3em;
+            margin-bottom: 16px;
+            color: #3b82f6;
+        }
+        .step {
+            background: rgba(59,130,246,0.1);
+            border-left: 3px solid #3b82f6;
+            padding: 16px;
+            margin: 12px 0;
+            border-radius: 4px;
+        }
+        .step-num {
+            display: inline-block;
+            background: #3b82f6;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 24px;
+            font-size: 14px;
+            margin-right: 8px;
+        }
+        button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            margin: 8px 8px 8px 0;
+            transition: all 0.2s;
+        }
+        button:hover { background: #2563eb; }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .success {
+            background: rgba(34,197,94,0.1);
+            border-left-color: #22c55e;
+        }
+        .error {
+            background: rgba(239,68,68,0.1);
+            border-left-color: #ef4444;
+        }
+        .warning {
+            background: rgba(251,191,36,0.1);
+            border-left-color: #fbbf24;
+        }
+        #output {
+            background: #000;
+            padding: 16px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .success-msg { color: #22c55e; }
+        .error-msg { color: #ef4444; }
+        .info-msg { color: #3b82f6; }
+        code {
+            background: rgba(255,255,255,0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 6px;
+            color: white;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Authentication Test Tool</h1>
+        <p class="subtitle">Quick setup and testing for TwineCapital authentication</p>
+
+        <!-- Manual Setup Instructions -->
+        <div class="section">
+            <h2>📋 Manual Setup (One Time Only)</h2>
+            <p style="margin-bottom:16px">Since automated migration requires special permissions, follow these quick manual steps:</p>
+            
+            <div class="step">
+                <span class="step-num">1</span>
+                <strong>Go to Supabase Dashboard</strong><br>
+                <small style="color:#999">Visit <a href="https://supabase.com" style="color:#3b82f6">supabase.com</a> → Open your TwineCapital project</small>
+            </div>
+
+            <div class="step">
+                <span class="step-num">2</span>
+                <strong>Open SQL Editor</strong><br>
+                <small style="color:#999">Click "SQL Editor" in the left sidebar → Click "+ New query"</small>
+            </div>
+
+            <div class="step">
+                <span class="step-num">3</span>
+                <strong>Copy SQL Migration</strong><br>
+                <small style="color:#999">Copy the contents of <code>migrations/setup_auth.sql</code> and paste into the SQL editor</small>
+            </div>
+
+            <div class="step">
+                <span class="step-num">4</span>
+                <strong>Run the Migration</strong><br>
+                <small style="color:#999">Click "Run" in the bottom right → Wait for success message</small>
+            </div>
+
+            <div class="step">
+                <span class="step-num">5</span>
+                <strong>Disable Email Confirmation</strong><br>
+                <small style="color:#999">Go to Authentication → Providers → Email → Turn OFF "Confirm email" → Save</small>
+            </div>
+        </div>
+
+        <!-- Test Authentication -->
+        <div class="section">
+            <h2>🧪 Test Authentication</h2>
+            <p style="margin-bottom:16px">After completing manual setup, test your authentication:</p>
+
+            <div style="margin-bottom:16px">
+                <input type="text" id="testName" placeholder="Your Name">
+                <input type="email" id="testEmail" placeholder="test@example.com">
+                <input type="password" id="testPassword" placeholder="Password (min 8 chars)">
+            </div>
+
+            <button onclick="testSignup()">Test Signup</button>
+            <button onclick="testLogin()">Test Login</button>
+            <button onclick="checkSession()">Check Session</button>
+            <button onclick="clearOutput()">Clear Log</button>
+
+            <div id="output" style="margin-top:16px"></div>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="section">
+            <h2>🔗 Quick Links</h2>
+            <button onclick="window.open('http://localhost:3000/signup', '_blank')">Open Signup Page</button>
+            <button onclick="window.open('http://localhost:3000/login', '_blank')">Open Login Page</button>
+            <button onclick="window.open('https://supabase.com', '_blank')">Supabase Dashboard</button>
+        </div>
+    </div>
+
+    <script>
+        const output = document.getElementById('output');
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'success' ? 'success-msg' : type === 'error' ? 'error-msg' : 'info-msg';
+            output.innerHTML += `<span class="${className}">[${timestamp}] ${message}</span>\n`;
+            output.scrollTop = output.scrollHeight;
+        }
+
+        function clearOutput() {
+            output.innerHTML = '';
+        }
+
+        async function testSignup() {
+            const name = document.getElementById('testName').value;
+            const email = document.getElementById('testEmail').value;
+            const password = document.getElementById('testPassword').value;
+
+            if (!name || !email || !password) {
+                log('❌ Please fill in all fields', 'error');
+                return;
+            }
+
+            log('🚀 Testing signup...', 'info');
+
+            try {
+                const response = await fetch('http://localhost:3000/api/auth/signup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    log('✅ Signup successful!', 'success');
+                    log(`   User ID: ${data.user?.id}`, 'success');
+                    log(`   Email: ${data.user?.email}`, 'success');
+                    log('', 'info');
+                    log('👉 Next: Try logging in with these credentials', 'info');
+                } else {
+                    log(`❌ Signup failed: ${data.error}`, 'error');
+                    
+                    if (data.error.includes('email')) {
+                        log('💡 Tip: Make sure email confirmation is disabled in Supabase', 'info');
+                    }
+                    if (data.error.includes('companies')) {
+                        log('💡 Tip: Run the SQL migration in Supabase dashboard', 'info');
+                    }
+                }
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+                log('💡 Make sure dev server is running: npm run dev', 'info');
+            }
+        }
+
+        async function testLogin() {
+            const email = document.getElementById('testEmail').value;
+            const password = document.getElementById('testPassword').value;
+
+            if (!email || !password) {
+                log('❌ Please enter email and password', 'error');
+                return;
+            }
+
+            log('🔑 Testing login...', 'info');
+
+            try {
+                const response = await fetch('http://localhost:3000/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    log('✅ Login successful!', 'success');
+                    log(`   User ID: ${data.user?.id}`, 'success');
+                    log(`   Email: ${data.user?.email}`, 'success');
+                    log('', 'info');
+                    log('🎉 Authentication is working!', 'success');
+                } else {
+                    log(`❌ Login failed: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+                log('💡 Make sure dev server is running: npm run dev', 'info');
+            }
+        }
+
+        async function checkSession() {
+            log('🔍 Checking session...', 'info');
+            
+            try {
+                const response = await fetch('http://localhost:3000/api/auth/session');
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.user) {
+                        log('✅ Active session found', 'success');
+                        log(`   User: ${data.user.email}`, 'success');
+                    } else {
+                        log('ℹ️ No active session', 'info');
+                    }
+                } else {
+                    log('ℹ️ Session check endpoint not available', 'info');
+                }
+            } catch (error) {
+                log(`ℹ️ ${error.message}`, 'info');
+            }
+        }
+
+        // Auto-fill with test data
+        window.addEventListener('load', () => {
+            document.getElementById('testName').value = 'Test User';
+            document.getElementById('testEmail').value = `test${Date.now()}@example.com`;
+            document.getElementById('testPassword').value = 'testpass123';
+            log('✨ Auth test tool loaded', 'success');
+            log('👆 Fill in the form above and click "Test Signup"', 'info');
+        });
+    </script>
+</body>
+</html>

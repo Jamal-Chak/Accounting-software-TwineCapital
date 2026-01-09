@@ -1,0 +1,25 @@
+{
+    "buildCommand": "next build",
+    "devCommand": "next dev",
+    "installCommand": "npm install",
+    "framework": "nextjs",
+    "regions": [
+        "jnb1"
+    ],
+    "env": {
+        "NEXT_PUBLIC_SUPABASE_URL": "@supabase_url",
+        "NEXT_PUBLIC_SUPABASE_ANON_KEY": "@supabase_anon_key",
+        "NEXT_PUBLIC_APP_URL": "@app_url",
+        "STITCH_CLIENT_ID": "@stitch_client_id",
+        "STITCH_CLIENT_SECRET": "@stitch_client_secret",
+        "STITCH_REDIRECT_URI": "@stitch_redirect_uri",
+        "RESEND_API_KEY": "@resend_api_key",
+        "ENCRYPTION_KEY": "@encryption_key",
+        "NEXT_PUBLIC_GEMINI_API_KEY": "@gemini_api_key"
+    },
+    "build": {
+        "env": {
+            "NODE_ENV": "production"
+        }
+    }
+}
