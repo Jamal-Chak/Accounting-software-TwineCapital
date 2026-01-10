@@ -2,7 +2,9 @@
 
 import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { getExpenses, addExpense, getCompanyId, type Expense } from '@/lib/database'
+import { getExpenses } from '@/app/actions/data'
+import { createExpense } from '@/app/actions/expenses'
+import type { Expense } from '@/lib/database'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Plus, X, Upload } from 'lucide-react'
 import { DocumentUpload } from '@/components/documents/DocumentUpload'
@@ -61,16 +63,7 @@ function ExpensesContent() {
       const taxAmount = amount * (taxRate / 100)
       const totalAmount = amount + taxAmount
 
-      // Get a valid company ID (demo or real)
-      const companyId = await getCompanyId()
-      if (!companyId) {
-        alert('Could not find or create a demo company. Please try again.')
-        setSubmitting(false)
-        return
-      }
-
       const newExpense = {
-        company_id: companyId,
         description: formData.description,
         amount: amount,
         category: formData.category,
@@ -82,7 +75,7 @@ function ExpensesContent() {
         status: 'pending' as const
       }
 
-      const result = await addExpense(newExpense)
+      const result = await createExpense(newExpense)
 
       if (result.success) {
         setIsModalOpen(false)

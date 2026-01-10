@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { SubscriptionStatus } from '@/components/subscription/SubscriptionStatus'
-import { getInvoices, getExpenses, type Invoice, type Expense } from '@/lib/database'
+import { getInvoices, getExpenses } from '@/app/actions/data'
+import type { Invoice, Expense } from '@/lib/database'
 import {
     TrendingUp,
     TrendingDown,

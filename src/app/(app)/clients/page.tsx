@@ -4,7 +4,9 @@ import { useState, useEffect } from 'react'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { ClientList } from '@/components/clients/ClientList'
 import { ClientModal } from '@/components/clients/ClientModal'
-import { getClients, addClient, updateClient, deleteClient, type Client } from '@/lib/database'
+import { getClients } from '@/app/actions/data'
+import { createClient, updateClient, deleteClient } from '@/app/actions/clients'
+import type { Client } from '@/lib/database'
 import { Plus, Users, UserCheck, AlertCircle, Loader2 } from 'lucide-react'
 
 export default function ClientsPage() {
@@ -38,7 +40,7 @@ export default function ClientsPage() {
                 throw new Error(result.error)
             }
         } else {
-            const result = await addClient(clientData)
+            const result = await createClient(clientData)
             if (result.success) {
                 await loadClients()
             } else {

@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { getCompanyId, getCompany, updateCompany, getTaxRates, addSampleClients, addSampleTransactions, type Company, type TaxRate } from '@/lib/database'
+import { getCompany, getTaxRates } from '@/app/actions/data'
+import { updateCompanySettings } from '@/app/actions/company'
 import { getIntegrationsStatus } from './actions'
 import { SettingsLayout } from '@/components/settings/SettingsLayout'
 import { OrganizationSettings } from '@/components/settings/OrganizationSettings'
@@ -12,6 +13,7 @@ import { InventorySettings } from '@/components/settings/InventorySettings'
 import { UserManagementSettings } from '@/components/settings/UserManagementSettings'
 import { NotificationSettings } from '@/components/settings/NotificationSettings'
 import { Database, Network, Globe } from 'lucide-react'
+import type { Company, TaxRate } from '@/lib/database'
 
 // Placeholder components for other sections to keep the file clean
 function PlaceholderSection({ title, description }: { title: string, description: string }) {
@@ -37,21 +39,19 @@ export default function SettingsPage() {
     }, [])
 
     const loadData = async () => {
-        const companyId = await getCompanyId()
-        if (companyId) {
-            const companyData = await getCompany(companyId)
-            setCompany(companyData)
+        const companyData = await getCompany()
+        setCompany(companyData)
 
-            const rates = await getTaxRates(companyId)
-            setTaxRates(rates)
-        }
+        const rates = await getTaxRates()
+        setTaxRates(rates)
+
         const status = await getIntegrationsStatus()
         setIntegrations(status)
     }
 
     const handleSaveCompany = async (updates: Partial<Company>) => {
-        if (!company) return
-        const result = await updateCompany(company.id, updates)
+        if (!company || !updates.settings) return
+        const result = await updateCompanySettings(company.id, updates.settings)
         if (result.success) {
             await loadData()
         }
@@ -62,9 +62,8 @@ export default function SettingsPage() {
 
         setSeeding(true)
         try {
-            await addSampleClients()
-            await addSampleTransactions()
-            alert('Sample data added successfully!')
+            // TODO: Implement server action for seeding sample data
+            alert('Sample data seeding temporarily disabled - will be re-enabled soon')
         } catch (error) {
             console.error('Error seeding data:', error)
             alert('Failed to add sample data.')

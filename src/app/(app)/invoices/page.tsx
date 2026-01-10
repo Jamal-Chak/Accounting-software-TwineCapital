@@ -1,7 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { getInvoices, getClients, type Invoice, type Client } from '@/lib/database'
+import { getInvoices, getClients } from '@/app/actions/data'
+import type { Invoice, Client } from '@/lib/database'
 import Link from 'next/link'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Plus, Upload } from 'lucide-react'
