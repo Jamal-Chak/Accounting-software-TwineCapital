@@ -1,54 +1,121 @@
-# TwineCapital - Intelligent Accounting
+# TwineCapital
 
-TwineCapital is a next-generation AI-powered accounting and invoicing tool designed to automate bookkeeping, cash flow prediction, and compliance.
+Intelligent accounting platform with AI-powered insights for small businesses.
 
-![Dashboard](https://via.placeholder.com/800x400?text=TwineCapital+Dashboard)
+## 🚀 Features
 
-## 🚀 Key Features
-
--   **AI Autobookkeeping**: Automatically categorizes transactions and detects anomalies.
--   **Smart Invoicing**: Create and send invoices with integrated payment links.
--   **Cash Flow Prediction**: Real-time forecasting based on historical data.
--   **Bank Integration**: Connect multiple bank accounts for seamless reconciliation.
--   **Document Management**: OCR-powered receipt scanning and storage.
--   **Analytics**: Deep insights into customer and supplier behavior.
-
-## 📚 Documentation
-
-Detailed documentation is available in the `docs` folder:
-
--   [**User Guide**](docs/USER_GUIDE.md): Feature walkthroughs for end-users.
--   [**Developer Guide**](docs/DEVELOPER_GUIDE.md): Technical architecture, setup, and contribution guidelines.
+- **Invoice Management** - Create, send, and track professional invoices
+- **PDF Generation** - Download beautiful PDF invoices
+- **Email Integration** - Send invoices directly to clients
+- **Expense Tracking** - Track and categorize business expenses
+- **Client Management** - Manage customer database
+- **AI Assistant** - Gemini-powered invoice generation
+- **Multi-tenant** - Secure data isolation with RLS
+- **Subscription Billing** - Integrated payment processing
 
 ## 🛠️ Tech Stack
 
--   **Frontend**: Next.js 14 (App Router), React, Tailwind CSS
--   **Backend/Database**: Supabase (PostgreSQL), Next.js API Routes
--   **AI/ML**: Google Gemini (Planned), Custom Logic
--   **Styling**: Tailwind CSS, Lucide Icons
+- **Framework:** Next.js 16
+- **Database:** Supabase (PostgreSQL)
+- **Authentication:** Supabase Auth
+- **Styling:** Tailwind CSS
+- **Email:** Resend + React Email
+- **PDF:** @react-pdf/renderer
+- **AI:** Google Gemini
+- **Payments:** Flutterwave
 
-## 🏁 Getting Started
+## 📋 Prerequisites
 
-1.  **Clone the repository:**
-    ```bash
-    git clone https://github.com/your-org/twine-capital.git
-    cd twine-capital/web
-    ```
+- Node.js 18+ and npm
+- Supabase account
+- Resend account (for emails)
+- Gemini API key
+- Flutterwave account (for payments)
 
-2.  **Install dependencies:**
-    ```bash
-    npm install
-    ```
+## 🔧 Installation
 
-3.  **Set up environment variables:**
-    Copy `.env.local.example` to `.env.local` and fill in your Supabase credentials.
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/Jamal-Chak/Accounting-software-TwineCapital.git
+   cd Accounting-software-TwineCapital/web
+   ```
 
-4.  **Run development server:**
-    ```bash
-    npm run dev
-    ```
-    Open [http://localhost:3000](http://localhost:3000) to view the app.
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-## 📄 License
+3. **Set up environment variables**
+   ```bash
+   cp .env.example .env.local
+   ```
+   Fill in your API keys and configuration
 
-Proprietary - All rights reserved.
+4. **Run database migrations**
+   - Go to your Supabase project
+   - Run SQL scripts in `migrations/` folder
+
+5. **Start development server**
+   ```bash
+   npm run dev
+   ```
+
+6. **Open application**
+   Navigate to [http://localhost:3000](http://localhost:3000)
+
+## 🌐 Deployment
+
+See [DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md) for detailed deployment instructions.
+
+### Quick Deploy to Vercel
+
+```bash
+npm i -g vercel
+vercel --prod
+```
+
+## 📚 Documentation
+
+- [Deployment Guide](./DEPLOYMENT_GUIDE.md) - Production deployment instructions
+- [Deployment Checklist](./DEPLOYMENT_CHECKLIST.md) - Pre/post-deployment checklist
+- [Environment Variables](./.env.example) - Required configuration
+
+## 🔐 Security
+
+- Row-Level Security (RLS) enabled on all tables
+- Server-side authentication on all operations
+- Encrypted sensitive data
+- Secure API key management
+
+## 🧪 Testing
+
+```bash
+# Run build
+npm run build
+
+# Check for errors
+npm run lint
+```
+
+## 📝 License
+
+MIT License - see LICENSE file for details
+
+## 🤝 Support
+
+For issues and questions:
+- GitHub Issues
+- Email: support@twinecapital.com
+
+## 🎯 Roadmap
+
+- [x] Invoice management
+- [x] PDF generation
+- [x] Email notifications
+- [ ] Banking integration
+- [ ] Advanced reporting
+- [ ] Mobile app
+
+---
+
+**Built with ❤️ for small businesses**

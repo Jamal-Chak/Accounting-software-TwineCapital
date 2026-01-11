@@ -7,6 +7,8 @@ import Link from 'next/link'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Plus, Upload } from 'lucide-react'
 import { DocumentUpload } from '@/components/documents/DocumentUpload'
+import { DownloadInvoicePDFButton } from '@/components/invoices/DownloadInvoicePDFButton'
+import { SendInvoiceEmailButton } from '@/components/invoices/SendInvoiceEmailButton'
 
 export default function InvoicesPage() {
   const [invoices, setInvoices] = useState<Invoice[]>([])
@@ -54,6 +56,11 @@ export default function InvoicesPage() {
   const getClientName = (clientId: string) => {
     const client = clients.find(c => c.id === clientId)
     return client?.name || 'Unknown Client'
+  }
+
+  const getClientEmail = (clientId: string) => {
+    const client = clients.find(c => c.id === clientId)
+    return client?.email || null
   }
 
   if (loading) {
@@ -175,13 +182,12 @@ export default function InvoicesPage() {
         ) : (
           <div className="divide-y divide-gray-200">
             {invoices.map((invoice) => (
-              <Link
+              <div
                 key={invoice.id}
-                href={`/invoices/${invoice.id}`}
-                className="block p-6 hover:bg-gray-50 transition-colors duration-150"
+                className="p-6 hover:bg-gray-50 transition-colors duration-150"
               >
                 <div className="flex items-center justify-between">
-                  <div className="flex-1">
+                  <Link href={`/invoices/${invoice.id}`} className="flex-1">
                     <div className="flex items-center space-x-3">
                       <h4 className="font-semibold text-gray-900">
                         INV-{invoice.invoice_number}
@@ -197,8 +203,8 @@ export default function InvoicesPage() {
                       <span>Issued: {new Date(invoice.issue_date).toLocaleDateString('en-ZA')}</span>
                       <span>Due: {new Date(invoice.due_date).toLocaleDateString('en-ZA')}</span>
                     </div>
-                  </div>
-                  <div className="text-right">
+                  </Link>
+                  <div className="text-right mr-4">
                     <p className="text-lg font-semibold text-gray-900">
                       {formatCurrency(invoice.total_amount)}
                     </p>
@@ -206,13 +212,24 @@ export default function InvoicesPage() {
                       including VAT
                     </p>
                   </div>
-                  <div className="ml-4">
-                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
+                  <div className="flex items-center gap-2">
+                    <SendInvoiceEmailButton
+                      invoiceId={invoice.id}
+                      invoiceNumber={invoice.invoice_number}
+                      clientEmail={getClientEmail(invoice.client_id)}
+                    />
+                    <DownloadInvoicePDFButton
+                      invoiceId={invoice.id}
+                      invoiceNumber={invoice.invoice_number}
+                    />
+                    <Link href={`/invoices/${invoice.id}`}>
+                      <svg className="w-5 h-5 text-gray-400 hover:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </Link>
                   </div>
                 </div>
-              </Link>
+              </div>
             ))}
           </div>
         )}
