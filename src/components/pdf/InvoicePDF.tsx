@@ -1,216 +1,225 @@
-import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer'
+import React from 'react';
+import { Document, Page, Text, View, StyleSheet, Font } from '@react-pdf/renderer';
+import type { Invoice, Client, InvoiceItem } from '@/lib/database';
 
-// Define styles for the PDF
+// Register a font (optional, usually standard fonts like Helvetica work fine out of box)
+// Font.register({ family: 'Roboto', src: 'https://fonts.gstatic.com/s/roboto/v20/KFOmCnqEu92Fr1Mu4mxK.woff2' });
+
 const styles = StyleSheet.create({
     page: {
-        padding: 40,
-        fontSize: 10,
+        flexDirection: 'column',
+        backgroundColor: '#FFFFFF',
+        padding: 30,
+        fontSize: 12,
         fontFamily: 'Helvetica',
     },
     header: {
-        marginBottom: 20,
-        borderBottom: '2px solid #2563eb',
-        paddingBottom: 10,
-    },
-    companyName: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        color: '#1e40af',
-        marginBottom: 5,
-    },
-    invoiceTitle: {
-        fontSize: 18,
-        color: '#374151',
-        marginTop: 10,
-    },
-    section: {
-        marginBottom: 15,
-    },
-    row: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginBottom: 5,
+        marginBottom: 40,
+        borderBottomWidth: 1,
+        borderBottomColor: '#EEE',
+        paddingBottom: 20,
+    },
+    title: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: '#111',
+        textTransform: 'uppercase',
+    },
+    companyDetails: {
+        flexDirection: 'column',
+        alignItems: 'flex-start',
     },
     label: {
-        fontWeight: 'bold',
-        color: '#4b5563',
+        fontSize: 10,
+        color: '#666',
+        marginBottom: 4,
     },
     value: {
-        color: '#111827',
+        fontSize: 12,
+        color: '#000',
+        marginBottom: 2,
+    },
+    clientSection: {
+        marginBottom: 30,
     },
     table: {
-        marginTop: 20,
-        borderTop: '1px solid #e5e7eb',
-    },
-    tableHeader: {
-        flexDirection: 'row',
-        backgroundColor: '#f3f4f6',
-        padding: 8,
-        fontWeight: 'bold',
+        display: 'flex',
+        width: 'auto',
+        borderStyle: 'solid',
+        borderWidth: 1,
+        borderColor: '#EEE',
+        borderRightWidth: 0,
+        borderBottomWidth: 0,
     },
     tableRow: {
+        margin: 'auto',
         flexDirection: 'row',
-        borderBottom: '1px solid #e5e7eb',
+    },
+    tableCol: {
+        width: '25%',
+        borderStyle: 'solid',
+        borderWidth: 1,
+        borderColor: '#EEE',
+        borderLeftWidth: 0,
+        borderTopWidth: 0,
         padding: 8,
     },
-    col1: { width: '40%' },
-    col2: { width: '15%', textAlign: 'right' },
-    col3: { width: '15%', textAlign: 'right' },
-    col4: { width: '15%', textAlign: 'right' },
-    col5: { width: '15%', textAlign: 'right' },
+    tableColDesc: {
+        width: '40%',
+        borderStyle: 'solid',
+        borderWidth: 1,
+        borderColor: '#EEE',
+        borderLeftWidth: 0,
+        borderTopWidth: 0,
+        padding: 8,
+    },
+    tableColSmall: {
+        width: '15%',
+        borderStyle: 'solid',
+        borderWidth: 1,
+        borderColor: '#EEE',
+        borderLeftWidth: 0,
+        borderTopWidth: 0,
+        padding: 8,
+    },
+    tableHeader: {
+        backgroundColor: '#F9FAFB',
+        fontWeight: 'bold',
+    },
     totals: {
         marginTop: 20,
-        marginLeft: 'auto',
-        width: '40%',
+        alignItems: 'flex-end',
     },
     totalRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
+        width: 200,
         marginBottom: 5,
     },
-    grandTotal: {
-        fontSize: 14,
+    totalLabel: {
+        fontSize: 12,
+        color: '#666',
+    },
+    totalValue: {
+        fontSize: 12,
         fontWeight: 'bold',
-        marginTop: 5,
-        paddingTop: 5,
-        borderTop: '2px solid #2563eb',
+        color: '#000',
     },
     footer: {
         position: 'absolute',
         bottom: 30,
-        left: 40,
-        right: 40,
+        left: 30,
+        right: 30,
         textAlign: 'center',
-        color: '#6b7280',
-        fontSize: 8,
-    },
-})
-
-interface InvoiceItem {
-    description: string
-    quantity: number
-    unit_price: number
-    tax_rate: number
-    total_amount: number
-}
-
-interface Client {
-    name: string
-    email?: string
-    address?: string
-}
+        color: '#999',
+        fontSize: 10,
+        borderTopWidth: 1,
+        borderTopColor: '#EEE',
+        paddingTop: 10,
+    }
+});
 
 interface InvoicePDFProps {
-    invoice: {
-        invoice_number: string
-        issue_date: string
-        due_date: string
-        total_amount: number
-        tax_amount: number
-        notes?: string
-        items?: InvoiceItem[]
-    }
-    client: Client
+    invoice: Invoice;
+    client?: Client;
+    items: InvoiceItem[];
+    companyName?: string;
 }
 
-export function InvoicePDF({ invoice, client }: InvoicePDFProps) {
-    const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat('en-ZA', {
-            style: 'currency',
-            currency: 'ZAR',
-        }).format(amount)
-    }
+const formatCurrency = (amount: number, currency = 'ZAR') => {
+    return new Intl.NumberFormat('en-ZA', { style: 'currency', currency }).format(amount);
+};
 
-    const subtotal = invoice.total_amount - invoice.tax_amount
+export const InvoicePDF: React.FC<InvoicePDFProps> = ({ invoice, client, items, companyName }) => (
+    <Document>
+        <Page size="A4" style={styles.page}>
 
-    return (
-        <Document>
-            <Page size="A4" style={styles.page}>
-                {/* Header */}
-                <View style={styles.header}>
-                    <Text style={styles.companyName}>Twine Capital</Text>
-                    <Text style={{ color: '#6b7280', fontSize: 9 }}>Business Management Platform</Text>
-                    <Text style={styles.invoiceTitle}>INVOICE</Text>
+            {/* Header */}
+            <View style={styles.header}>
+                <View style={styles.companyDetails}>
+                    <Text style={styles.title}>{companyName || 'TwineCapital'}</Text>
+                    <Text style={styles.value}>Invoice #{invoice.invoice_number}</Text>
+                    <Text style={styles.value}>Date: {new Date(invoice.issue_date).toLocaleDateString()}</Text>
+                    <Text style={styles.value}>Due: {new Date(invoice.due_date).toLocaleDateString()}</Text>
+                </View>
+                <View style={{ alignItems: 'flex-end' }}>
+                    <Text style={styles.title}>INVOICE</Text>
+                    <Text style={{ ...styles.value, color: invoice.status === 'paid' ? 'green' : (invoice.status === 'overdue' ? 'red' : 'gray') }}>
+                        {invoice.status.toUpperCase()}
+                    </Text>
+                </View>
+            </View>
+
+            {/* Client Details */}
+            <View style={styles.clientSection}>
+                <Text style={styles.label}>BILL TO:</Text>
+                <Text style={{ ...styles.value, fontWeight: 'bold' }}>{client?.name || 'Unknown Client'}</Text>
+                {client?.email && <Text style={styles.value}>{client.email}</Text>}
+                {client?.address && <Text style={styles.value}>{client.address}</Text>}
+                {client?.tax_number && <Text style={styles.value}>VAT: {client.tax_number}</Text>}
+            </View>
+
+            {/* Items Table */}
+            <View style={styles.table}>
+                {/* Table Header */}
+                <View style={styles.tableRow}>
+                    <View style={{ ...styles.tableColDesc, ...styles.tableHeader }}>
+                        <Text>Description</Text>
+                    </View>
+                    <View style={{ ...styles.tableColSmall, ...styles.tableHeader }}>
+                        <Text>Qty</Text>
+                    </View>
+                    <View style={{ ...styles.tableCol, ...styles.tableHeader }}>
+                        <Text>Price</Text>
+                    </View>
+                    <View style={{ ...styles.tableCol, ...styles.tableHeader }}>
+                        <Text>Total</Text>
+                    </View>
                 </View>
 
-                {/* Invoice Details */}
-                <View style={styles.section}>
-                    <View style={styles.row}>
-                        <View>
-                            <Text style={styles.label}>Invoice Number:</Text>
-                            <Text style={styles.value}>{invoice.invoice_number}</Text>
+                {/* Table Rows */}
+                {items.map((item) => (
+                    <View style={styles.tableRow} key={item.id}>
+                        <View style={styles.tableColDesc}>
+                            <Text>{item.description}</Text>
                         </View>
-                        <View>
-                            <Text style={styles.label}>Issue Date:</Text>
-                            <Text style={styles.value}>{new Date(invoice.issue_date).toLocaleDateString('en-ZA')}</Text>
+                        <View style={styles.tableColSmall}>
+                            <Text>{item.quantity}</Text>
                         </View>
-                        <View>
-                            <Text style={styles.label}>Due Date:</Text>
-                            <Text style={styles.value}>{new Date(invoice.due_date).toLocaleDateString('en-ZA')}</Text>
+                        <View style={styles.tableCol}>
+                            <Text>{formatCurrency(item.unit_price)}</Text>
+                        </View>
+                        <View style={styles.tableCol}>
+                            <Text>{formatCurrency(item.total_amount)}</Text>
                         </View>
                     </View>
+                ))}
+            </View>
+
+            {/* Totals */}
+            <View style={styles.totals}>
+                <View style={styles.totalRow}>
+                    <Text style={styles.totalLabel}>Subtotal:</Text>
+                    <Text style={styles.totalValue}>{formatCurrency(invoice.total_amount - invoice.tax_amount)}</Text>
                 </View>
-
-                {/* Bill To */}
-                <View style={styles.section}>
-                    <Text style={styles.label}>Bill To:</Text>
-                    <Text style={{ ...styles.value, fontSize: 12, marginTop: 5 }}>{client.name}</Text>
-                    {client.email && <Text style={styles.value}>{client.email}</Text>}
-                    {client.address && <Text style={styles.value}>{client.address}</Text>}
+                <View style={styles.totalRow}>
+                    <Text style={styles.totalLabel}>VAT (15%):</Text>
+                    <Text style={styles.totalValue}>{formatCurrency(invoice.tax_amount)}</Text>
                 </View>
-
-                {/* Items Table */}
-                {invoice.items && invoice.items.length > 0 && (
-                    <View style={styles.table}>
-                        <View style={styles.tableHeader}>
-                            <Text style={styles.col1}>Description</Text>
-                            <Text style={styles.col2}>Qty</Text>
-                            <Text style={styles.col3}>Price</Text>
-                            <Text style={styles.col4}>Tax</Text>
-                            <Text style={styles.col5}>Total</Text>
-                        </View>
-                        {invoice.items.map((item, index) => (
-                            <View key={index} style={styles.tableRow}>
-                                <Text style={styles.col1}>{item.description}</Text>
-                                <Text style={styles.col2}>{item.quantity}</Text>
-                                <Text style={styles.col3}>{formatCurrency(item.unit_price)}</Text>
-                                <Text style={styles.col4}>{item.tax_rate}%</Text>
-                                <Text style={styles.col5}>{formatCurrency(item.total_amount)}</Text>
-                            </View>
-                        ))}
-                    </View>
-                )}
-
-                {/* Totals */}
-                <View style={styles.totals}>
-                    <View style={styles.totalRow}>
-                        <Text>Subtotal:</Text>
-                        <Text>{formatCurrency(subtotal)}</Text>
-                    </View>
-                    <View style={styles.totalRow}>
-                        <Text>Tax:</Text>
-                        <Text>{formatCurrency(invoice.tax_amount)}</Text>
-                    </View>
-                    <View style={{ ...styles.totalRow, ...styles.grandTotal }}>
-                        <Text>Total:</Text>
-                        <Text>{formatCurrency(invoice.total_amount)}</Text>
-                    </View>
+                <View style={{ ...styles.totalRow, marginTop: 10 }}>
+                    <Text style={{ ...styles.totalLabel, fontWeight: 'bold', fontSize: 14 }}>Total:</Text>
+                    <Text style={{ ...styles.totalValue, fontSize: 14 }}>{formatCurrency(invoice.total_amount)}</Text>
                 </View>
+            </View>
 
-                {/* Notes */}
-                {invoice.notes && (
-                    <View style={{ ...styles.section, marginTop: 20 }}>
-                        <Text style={styles.label}>Notes:</Text>
-                        <Text style={{ ...styles.value, marginTop: 5 }}>{invoice.notes}</Text>
-                    </View>
-                )}
+            {/* Footer */}
+            <View style={styles.footer}>
+                <Text>Thank you for your business!</Text>
+                {invoice.notes && <Text style={{ marginTop: 5 }}>{invoice.notes}</Text>}
+            </View>
 
-                {/* Footer */}
-                <View style={styles.footer}>
-                    <Text>Thank you for your business!</Text>
-                    <Text>For any questions regarding this invoice, please contact us.</Text>
-                </View>
-            </Page>
-        </Document>
-    )
-}
+        </Page>
+    </Document>
+);

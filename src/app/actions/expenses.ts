@@ -30,8 +30,24 @@ export async function createExpense(expense: Omit<Expense, 'id' | 'created_at' |
         }
 
         // Post to journal
-        // TODO: Implement postExpenseJournal in journal.ts
-        // For now, expenses are created without journal entries
+        const { postExpenseJournal } = await import('@/lib/journal')
+        // Determine account codes based on category if possible, for now use defaults
+        // In a real app, you'd look up the account code mapped to the category
+
+        const journalResult = await postExpenseJournal(
+            companyId,
+            data.id,
+            data.date,
+            data.total_amount,
+            data.tax_amount,
+            data.description || 'Expense'
+        )
+
+        if (!journalResult.success) {
+            console.error('Warning: Expense created but journal entry failed:', journalResult.error)
+            // We return success: true because the expense ITSELF was saved, 
+            // but we might want to flag this to the user or admin
+        }
 
         return { success: true, data }
     } catch (error) {

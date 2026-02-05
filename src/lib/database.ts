@@ -251,51 +251,52 @@ async function addTransactionsToConnection(connectionId: string) {
 // Helper to get the current user's company ID
 export async function getCompanyId() {
   try {
-    // Try to get the first existing company
-    const { data: existingCompanies } = await supabase
+    // Get the authenticated user
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+
+    if (authError || !user) {
+      console.error('No authenticated user:', authError)
+      return null
+    }
+
+    // Try to get the user's company
+    // RLS will automatically filter to only return companies where auth.uid() = user_id
+    const { data: existingCompanies, error: companyError } = await supabase
       .from('companies')
       .select('id')
       .limit(1)
+
+    if (companyError) {
+      console.error('Error fetching user companies:', companyError)
+      return null
+    }
 
     if (existingCompanies && existingCompanies.length > 0) {
       return existingCompanies[0].id
     }
 
-    // Create a demo company if none exists
-    // NOTE: This uses a fixed UUID since we don't have authentication yet
-    const demoCompany = {
-      user_id: '00000000-0000-0000-0000-000000000000',
-      name: 'Demo Company',
-      vat_number: 'VAT123456789',
-      country: 'South Africa',
-      currency: 'ZAR'
-    }
+    // If no company exists, CREATE one automatically
+    console.log('No company found, creating default company...')
 
-    const { data: companyData, error: companyError } = await supabase
+    const { data: newCompany, error: createError } = await supabase
       .from('companies')
-      .insert([demoCompany])
+      .insert([{
+        user_id: user.id,
+        name: user.user_metadata?.company_name || 'My Company',
+        country: 'South Africa',
+        currency: 'ZAR'
+      }])
       .select()
+      .single()
 
-    if (companyError) {
-      console.error('Error creating company:', companyError)
+    if (createError) {
+      console.error('Error creating default company:', createError)
       return null
     }
 
-    // Initialize chart of accounts for new company
-    const { count: accountCount, error: accountError } = await supabase
-      .from('accounts')
-      .select('*', { count: 'exact', head: true })
-      .eq('company_id', companyData[0].id)
-
-    if (!accountError && accountCount === 0) {
-      console.log('Initializing chart of accounts for new company...')
-      const { initializeChartOfAccounts } = await import('./journal')
-      await initializeChartOfAccounts(companyData[0].id)
-    }
-
-    return companyData?.[0]?.id
+    return newCompany.id
   } catch (error) {
-    console.error('Error getting/creating company:', error)
+    console.error('Error getting company:', error)
     return null
   }
 }
@@ -957,38 +958,7 @@ export interface Item {
 
 // ===== ITEMS FUNCTIONS =====
 
-// Helper: Inventory Metadata Packing
-interface InventoryMetadata {
-  stock: number;
-  reorder: number;
-}
 
-function packInventoryMetadata(description: string | null, metadata: InventoryMetadata): string {
-  const desc = description ? description.split('|||')[0].trim() : '';
-  return `${desc} ||| ${JSON.stringify(metadata)}`;
-}
-
-function unpackInventoryMetadata(description: string | null): { description: string | null, stock: number, reorder: number } {
-  if (!description) return { description: null, stock: 0, reorder: 10 };
-
-  const parts = description.split('|||');
-  const desc = parts[0].trim() || null;
-
-  if (parts.length > 1) {
-    try {
-      const metadata = JSON.parse(parts[1]);
-      return {
-        description: desc,
-        stock: typeof metadata.stock === 'number' ? metadata.stock : 0,
-        reorder: typeof metadata.reorder === 'number' ? metadata.reorder : 10
-      };
-    } catch {
-      return { description: desc, stock: 0, reorder: 10 };
-    }
-  }
-
-  return { description: desc, stock: 0, reorder: 10 };
-}
 
 // Get all items
 export async function getItems(): Promise<Item[]> {
@@ -1003,15 +973,7 @@ export async function getItems(): Promise<Item[]> {
       return []
     }
 
-    return (data || []).map(item => {
-      const { description, stock, reorder } = unpackInventoryMetadata(item.description);
-      return {
-        ...item,
-        description,
-        current_stock: stock,
-        reorder_point: reorder
-      };
-    })
+    return data || []
   } catch (error) {
     console.error('Error in getItems:', error)
     return []
@@ -1021,19 +983,9 @@ export async function getItems(): Promise<Item[]> {
 // Add a new item
 export async function addItem(item: Omit<Item, 'id' | 'created_at' | 'updated_at'>) {
   try {
-    // Pack metadata
-    const description = packInventoryMetadata(item.description, {
-      stock: item.current_stock,
-      reorder: item.reorder_point
-    });
-
-    // Remove virtual fields from payload if they don't exist in DB (but Type says they do, so we cast)
-    const { current_stock, reorder_point, ...dbItem } = item as any;
-    dbItem.description = description;
-
     const { data, error } = await supabase
       .from('items')
-      .insert([dbItem])
+      .insert([item])
       .select()
 
     if (error) {
@@ -1041,15 +993,7 @@ export async function addItem(item: Omit<Item, 'id' | 'created_at' | 'updated_at
       return { success: false, error: error.message || JSON.stringify(error) }
     }
 
-    const created = data?.[0];
-    if (created) {
-      const unpacked = unpackInventoryMetadata(created.description);
-      created.description = unpacked.description;
-      created.current_stock = unpacked.stock;
-      created.reorder_point = unpacked.reorder;
-    }
-
-    return { success: true, data: created }
+    return { success: true, data: data?.[0] }
   } catch (error) {
     console.error('Error in addItem:', error)
     return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
@@ -1059,37 +1003,9 @@ export async function addItem(item: Omit<Item, 'id' | 'created_at' | 'updated_at
 // Update an item
 export async function updateItem(id: string, updates: Partial<Omit<Item, 'id' | 'created_at' | 'updated_at' | 'company_id'>>) {
   try {
-    const { current_stock, reorder_point, description, ...otherUpdates } = updates;
-
-    let newDescription = description;
-
-    // Logic to preserve existing metadata if not provided
-    if (current_stock !== undefined || reorder_point !== undefined) {
-      const current = await supabase.from('items').select('description').eq('id', id).single();
-      if (current.data) {
-        const unpacked = unpackInventoryMetadata(current.data.description);
-        // If description is NOT in updates, use existing; else use new
-        const descText = description !== undefined ? description : unpacked.description;
-        const nextStock = current_stock !== undefined ? current_stock : unpacked.stock;
-        const nextReorder = reorder_point !== undefined ? reorder_point : unpacked.reorder;
-
-        newDescription = packInventoryMetadata(descText, { stock: nextStock, reorder: nextReorder });
-      }
-    } else if (description !== undefined) {
-      // Description changed, preserve stock
-      const current = await supabase.from('items').select('description').eq('id', id).single();
-      if (current.data) {
-        const unpacked = unpackInventoryMetadata(current.data.description);
-        newDescription = packInventoryMetadata(description, { stock: unpacked.stock, reorder: unpacked.reorder });
-      }
-    }
-
-    const payload = { ...otherUpdates };
-    if (newDescription !== undefined) (payload as any).description = newDescription;
-
     const { data, error } = await supabase
       .from('items')
-      .update(payload)
+      .update(updates)
       .eq('id', id)
       .select()
 
@@ -1098,15 +1014,7 @@ export async function updateItem(id: string, updates: Partial<Omit<Item, 'id' | 
       return { success: false, error: error.message || JSON.stringify(error) }
     }
 
-    const updated = data?.[0];
-    if (updated) {
-      const unpacked = unpackInventoryMetadata(updated.description);
-      updated.description = unpacked.description;
-      updated.current_stock = unpacked.stock;
-      updated.reorder_point = unpacked.reorder;
-    }
-
-    return { success: true, data: updated }
+    return { success: true, data: data?.[0] }
   } catch (error) {
     console.error('Error in updateItem:', error)
     return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }

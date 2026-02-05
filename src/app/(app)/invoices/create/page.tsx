@@ -42,14 +42,17 @@ export default function CreateInvoicePage() {
 
   // Errors
   const [formErrors, setFormErrors] = useState<Record<string, string>>({})
+  const [generalError, setGeneralError] = useState<string | null>(null)
 
   const addSampleData = async () => {
     try {
       setLoading(true)
+      setGeneralError(null)
       await addSampleClients()
       window.location.reload()
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.error('Error adding sample data:', error)
+      setGeneralError(`Failed to add sample data: ${error.message || JSON.stringify(error)}`)
     } finally {
       setLoading(false)
     }
@@ -65,7 +68,7 @@ export default function CreateInvoicePage() {
         setExchangeRate(rate)
       } catch (error) {
         console.error('Failed to get exchange rate:', error)
-        alert('Could not fetch exchange rate. Using 1.0')
+        // Non-blocking error
         setExchangeRate(1.0)
       }
     }
@@ -106,6 +109,7 @@ export default function CreateInvoicePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setGeneralError(null)
 
     if (!validateForm()) return
 
@@ -115,7 +119,7 @@ export default function CreateInvoicePage() {
       // Get company ID
       const companyId = await getCompanyId()
       if (!companyId) {
-        alert('Could not find or create a demo company. Please try again.')
+        setGeneralError('Could not find your company record. Please try logging out and back in.')
         setSubmitting(false)
         return
       }
@@ -135,13 +139,13 @@ export default function CreateInvoicePage() {
 
         const clientResult = await addClient(newClient)
         if (!clientResult.success || !clientResult.data) {
-          alert(`Failed to create client: ${clientResult.error}`)
+          setGeneralError(`Failed to create client: ${clientResult.error}. This is likely a permission issue (RLS).`)
           setSubmitting(false)
           return
         }
         finalClientId = clientResult.data.id
       } else if (selectedClientId === 'new') {
-        alert('Please enter new client details.')
+        setGeneralError('Please enter new client details.')
         setSubmitting(false)
         return
       }
@@ -156,12 +160,12 @@ export default function CreateInvoicePage() {
         exchange_rate: exchangeRate,
         status: 'draft' as const,
         total_amount: lineItems.reduce((sum, item) => {
-          const itemTotal = item.quantity * item.unit_price * (1 + item.tax_rate / 100)
+          const itemTotal = Number(item.quantity) * Number(item.unit_price) * (1 + Number(item.tax_rate) / 100)
           return sum + itemTotal
         }, 0),
         tax_amount: lineItems.reduce((sum, item) => {
-          const itemSubtotal = item.quantity * item.unit_price
-          const taxAmount = itemSubtotal * (item.tax_rate / 100)
+          const itemSubtotal = Number(item.quantity) * Number(item.unit_price)
+          const taxAmount = itemSubtotal * (Number(item.tax_rate) / 100)
           return sum + taxAmount
         }, 0),
         notes: notes || null
@@ -169,10 +173,10 @@ export default function CreateInvoicePage() {
 
       const lineItemsData = lineItems.map(item => ({
         description: item.description,
-        quantity: item.quantity,
-        unit_price: item.unit_price,
-        tax_rate: item.tax_rate,
-        total_amount: item.quantity * item.unit_price * (1 + item.tax_rate / 100)
+        quantity: Number(item.quantity),
+        unit_price: Number(item.unit_price),
+        tax_rate: Number(item.tax_rate),
+        total_amount: Number(item.quantity) * Number(item.unit_price) * (1 + Number(item.tax_rate) / 100)
       }))
 
       console.log('Invoice data prepared:', { invoiceData, lineItemsData })
@@ -180,16 +184,16 @@ export default function CreateInvoicePage() {
       const result = await createInvoice(invoiceData, lineItemsData)
 
       if (result.success) {
-        alert('Invoice created successfully!')
+        // Success!
         window.location.href = '/invoices'
       } else {
         console.error('Error creating invoice:', result.error)
-        alert(`Error creating invoice: ${result.error}`)
+        setGeneralError(`Error creating invoice: ${result.error}. Check database permissions.`)
       }
 
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.error('Error creating invoice:', error)
-      alert('Error creating invoice.')
+      setGeneralError(`Unexpected error: ${error.message || 'Unknown error'}`)
     } finally {
       setSubmitting(false)
     }
@@ -256,13 +260,7 @@ export default function CreateInvoicePage() {
         ]}
         action={
           <div className="flex gap-3">
-            <button
-              onClick={addSampleData}
-              disabled={loading}
-              className="px-4 py-2 rounded-md font-medium text-sm transition-colors duration-200 inline-flex items-center justify-center gap-2 bg-gray-100 text-gray-700 hover:bg-gray-200 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
-            >
-              {loading ? 'Adding...' : 'Add Sample Data'}
-            </button>
+
             <Link href="/invoices" className="px-4 py-2 rounded-md font-medium text-sm transition-colors duration-200 inline-flex items-center justify-center gap-2 bg-transparent text-gray-600 hover:bg-gray-100 hover:text-gray-900">
               <ArrowLeft className="w-4 h-4" />
               <span>Back to Invoices</span>
@@ -275,6 +273,13 @@ export default function CreateInvoicePage() {
       <div className="mb-6">
         <AIInvoiceAssistant onInvoiceParsed={handleAIParsed} />
       </div>
+
+      {generalError && (
+        <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative" role="alert">
+          <strong className="font-bold">Error: </strong>
+          <span className="block sm:inline">{generalError}</span>
+        </div>
+      )}
 
       {/* Invoice Form */}
       <form onSubmit={handleSubmit} className="space-y-6">

@@ -121,7 +121,7 @@ function extractDate(text: string): string | null {
                 if (!isNaN(parsed.getTime())) {
                     return parsed.toISOString().split('T')[0]
                 }
-            } catch (e) {
+            } catch (_e) {
                 continue
             }
         }

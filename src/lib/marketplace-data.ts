@@ -9,7 +9,7 @@ export interface MarketplaceApp {
     id: string;
     title: string;
     description: string;
-    icon: any; // LucideIcon type is hard to resolve sometimes in simple files, using any for ease or ComponentType
+    icon: LucideIcon;
     category: AppCategory;
     status: AppStatus;
     price: string;

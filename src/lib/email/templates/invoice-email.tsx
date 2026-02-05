@@ -66,7 +66,7 @@ export function InvoiceEmail({
 
                     <Text style={footer}>
                         This invoice was sent by {companyName}. If you have any questions,
-                        please don't hesitate to contact us.
+                        please don&apos;t hesitate to contact us.
                     </Text>
 
                     <Text style={footer}>

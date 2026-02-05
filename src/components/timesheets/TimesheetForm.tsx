@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react'
 import { X } from 'lucide-react'
 import { createTimesheet, updateTimesheet, getProjects, type Timesheet, type Project } from '@/lib/database'
 
+import { useAuth } from '@/lib/auth'
+
 interface TimesheetFormProps {
     timesheet?: Timesheet
     onClose: () => void
@@ -11,6 +13,7 @@ interface TimesheetFormProps {
 }
 
 export function TimesheetForm({ timesheet, onClose, onSuccess }: TimesheetFormProps) {
+    const { user } = useAuth()
     const [loading, setLoading] = useState(false)
     const [projects, setProjects] = useState<Project[]>([])
     const [formData, setFormData] = useState({
@@ -38,7 +41,7 @@ export function TimesheetForm({ timesheet, onClose, onSuccess }: TimesheetFormPr
         try {
             const timesheetData = {
                 project_id: formData.project_id || null,
-                user_id: null, // TODO: Get from auth context
+                user_id: user?.id || null, // Updated to use auth context
                 date: formData.date,
                 duration: Number(formData.duration),
                 description: formData.description,

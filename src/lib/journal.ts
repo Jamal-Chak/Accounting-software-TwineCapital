@@ -424,6 +424,76 @@ export async function postBillJournal(
     }
 }
 
+/**
+ * Post journal for direct expense (e.g. card swipe)
+ * Debit: Expense Category Account
+ * Debit: VAT Input (if applicable)
+ * Credit: Cash/Bank Account
+ */
+export async function postExpenseJournal(
+    companyId: string,
+    expenseId: string,
+    date: string,
+    amount: number, // Total amount paid
+    taxAmount: number,
+    description: string,
+    expenseAccountCode: string = '5200', // Default Operating Expense
+    paymentAccountCode: string = '1110'  // Default Cash/Bank
+): Promise<{ success: boolean; journal?: Journal; error?: string }> {
+    try {
+        const expenseAccount = await getAccountByCode(expenseAccountCode, companyId)
+        const bankAccount = await getAccountByCode(paymentAccountCode, companyId)
+        const vatInputAccount = await getAccountByCode('1130', companyId)
+
+        if (!expenseAccount || !bankAccount) {
+            return {
+                success: false,
+                error: 'Required accounts not found. Please initialize chart of accounts.'
+            }
+        }
+
+        const subtotal = amount - taxAmount
+
+        const lines: JournalLine[] = [
+            {
+                account_id: expenseAccount.id,
+                debit: subtotal,
+                credit: 0,
+                description: description
+            },
+            {
+                account_id: bankAccount.id,
+                debit: 0,
+                credit: amount,
+                description: `${description} (Payment)`
+            }
+        ]
+
+        if (taxAmount > 0 && vatInputAccount) {
+            lines.push({
+                account_id: vatInputAccount.id,
+                debit: taxAmount,
+                credit: 0,
+                description: `VAT - ${description}`
+            })
+        }
+
+        return await createJournal(companyId, {
+            journal_date: date,
+            memo: description,
+            source: 'expense',
+            source_id: expenseId,
+            lines
+        })
+    } catch (error) {
+        console.error('Error in postExpenseJournal:', error)
+        return {
+            success: false,
+            error: error instanceof Error ? error.message : 'Unknown error'
+        }
+    }
+}
+
 // ===== REPORTING =====
 
 /**

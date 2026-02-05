@@ -32,7 +32,7 @@ export function WelcomeEmail({
                     <Text style={text}>Hi {userName},</Text>
 
                     <Text style={text}>
-                        Thank you for joining TwineCapital! We're excited to help you manage
+                        Thank you for joining TwineCapital! We&apos;re excited to help you manage
                         your accounting with intelligent automation and AI-powered insights.
                     </Text>
 

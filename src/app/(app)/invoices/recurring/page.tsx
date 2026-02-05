@@ -71,7 +71,7 @@ export default function RecurringInvoicesPage() {
                     { label: 'Invoices', href: '/invoices' },
                     { label: 'Recurring' }
                 ]}
-                actions={
+                action={
                     <div className="flex gap-2">
                         <button
                             onClick={handleProcess}
@@ -147,8 +147,8 @@ export default function RecurringInvoicesPage() {
                                     </td>
                                     <td className="px-6 py-4">
                                         <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${profile.status === 'active'
-                                                ? 'bg-green-100 text-green-800'
-                                                : 'bg-yellow-100 text-yellow-800'
+                                            ? 'bg-green-100 text-green-800'
+                                            : 'bg-yellow-100 text-yellow-800'
                                             }`}>
                                             {profile.status}
                                         </span>

@@ -3,11 +3,39 @@
 import Link from 'next/link'
 import DocumentUploader from '@/components/documents/DocumentUploader'
 import type { ExtractedData } from '@/lib/ocr'
+import { createExpense } from '@/app/actions/expenses'
+import { useState } from 'react'
 
 export default function DocumentScannerPage() {
-    const handleExtracted = (data: ExtractedData) => {
-        console.log('Extracted data:', data)
-        // TODO: Save to database and create expense
+    const [isSubmitting, setIsSubmitting] = useState(false)
+
+    const handleExtracted = async (data: ExtractedData) => {
+        setIsSubmitting(true)
+        try {
+            // Convert string amount to number if needed or ensure types match
+            const result = await createExpense({
+                description: data.vendor || 'Unknown Vendor',
+                amount: typeof data.amount === 'string' ? parseFloat(data.amount) : (data.amount || 0),
+                category: data.category || 'Uncategorized',
+                date: data.date || new Date().toISOString().split('T')[0],
+                vendor: data.vendor || null,
+                tax_rate: 0, // Default or extract if possible
+                tax_amount: typeof data.taxAmount === 'string' ? parseFloat(data.taxAmount) : (data.taxAmount || 0),
+                total_amount: typeof data.amount === 'string' ? parseFloat(data.amount) : (data.amount || 0),
+                status: 'pending'
+            })
+
+            if (result.success) {
+                alert('Expense created successfully!')
+            } else {
+                alert(`Failed to create expense: ${result.error}`)
+            }
+        } catch (error) {
+            console.error(error)
+            alert('An error occurred')
+        } finally {
+            setIsSubmitting(false)
+        }
     }
 
     return (

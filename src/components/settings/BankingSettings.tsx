@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useToast } from '@/components/ui/toast'
 import { getBankConnections, getCompanyId, type BankConnection } from '@/lib/database'
 import { Settings, RefreshCw, Trash2, Plus } from 'lucide-react'
+import { updateBankingSettings, deleteBankConnection } from '@/app/actions/settings'
 
 export function BankingSettings() {
     const [connections, setConnections] = useState<BankConnection[]>([])
@@ -42,14 +43,27 @@ export function BankingSettings() {
     const handleDeleteConnection = async (id: string) => {
         if (!confirm('Are you sure you want to delete this bank connection?')) return
 
-        // TODO: Implement delete
-        toast.success('Deleted', 'Bank connection removed')
-        loadConnections()
+        const result = await deleteBankConnection(id)
+        if (result.success) {
+            toast.success('Deleted', 'Bank connection removed')
+            loadConnections()
+        } else {
+            toast.error('Error', result.error || 'Failed to delete connection')
+        }
     }
 
-    const handleSaveSettings = () => {
-        // TODO: Save settings to database
-        toast.success('Settings Saved', 'Banking preferences updated successfully')
+    const handleSaveSettings = async () => {
+        const result = await updateBankingSettings({
+            autoMatchEnabled,
+            matchThreshold,
+            reconciliationFrequency
+        })
+
+        if (result.success) {
+            toast.success('Settings Saved', 'Banking preferences updated successfully')
+        } else {
+            toast.error('Error', result.error || 'Failed to save settings')
+        }
     }
 
     return (
