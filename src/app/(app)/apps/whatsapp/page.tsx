@@ -5,18 +5,22 @@ import { MessageSquare, Save, Smartphone, CheckCircle } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
 export default function WhatsAppConnectPage() {
-    const [connected, setConnected] = useState(false)
-    const [loading, setLoading] = useState(false)
-    const [phoneNumber, setPhoneNumber] = useState('')
-
-    // Load state on mount
-    useEffect(() => {
-        const saved = localStorage.getItem('whatsapp_connected')
-        if (saved === 'true') {
-            setConnected(true)
-            const savedPhone = localStorage.getItem('whatsapp_phone')
-            if (savedPhone) setPhoneNumber(savedPhone)
+    const [connected, setConnected] = useState(() => {
+        if (typeof window !== 'undefined') {
+            return localStorage.getItem('whatsapp_connected') === 'true'
         }
+        return false
+    })
+    const [loading, setLoading] = useState(false)
+    const [phoneNumber, setPhoneNumber] = useState(() => {
+        if (typeof window !== 'undefined') {
+            return localStorage.getItem('whatsapp_phone') || ''
+        }
+        return ''
+    })
+
+    // Load state on mount - No longer needed as handled by useState lazy initializer
+    useEffect(() => {
     }, [])
 
     const handleConnect = () => {
@@ -165,7 +169,7 @@ export default function WhatsAppConnectPage() {
                                         </label>
                                     </div>
                                     <p className="text-sm text-gray-500 bg-gray-50 p-3 rounded-md italic">
-                                        "{template.preview}"
+                                        &quot;{template.preview}&quot;
                                     </p>
                                 </div>
                             ))}

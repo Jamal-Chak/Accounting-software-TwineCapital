@@ -26,12 +26,6 @@ export default function InvoiceDetailsPage() {
     const [showWhatsAppModal, setShowWhatsAppModal] = useState(false)
     const [whatsAppMessage, setWhatsAppMessage] = useState('')
 
-    useEffect(() => {
-        if (id) {
-            loadData()
-        }
-    }, [id])
-
     const loadData = async () => {
         setLoading(true)
         const invoiceData = await getInvoice(id)
@@ -43,6 +37,12 @@ export default function InvoiceDetailsPage() {
         }
         setLoading(false)
     }
+
+    useEffect(() => {
+        if (id) {
+            loadData()
+        }
+    }, [id])
 
     const formatCurrency = (amount: number) => {
         return new Intl.NumberFormat('en-ZA', {

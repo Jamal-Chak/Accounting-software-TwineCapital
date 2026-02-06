@@ -13,16 +13,16 @@ export default function DocumentsPage() {
     const [currentFolder, setCurrentFolder] = useState<string | null>(null)
     const [showUpload, setShowUpload] = useState(false)
 
-    useEffect(() => {
-        loadDocuments()
-    }, [currentFolder])
-
     const loadDocuments = async () => {
         setLoading(true)
         const data = await getDocuments(currentFolder || undefined)
         setDocuments(data)
         setLoading(false)
     }
+
+    useEffect(() => {
+        loadDocuments()
+    }, [currentFolder])
 
     const handleDelete = async (doc: Document) => {
         if (!confirm(`Are you sure you want to delete "${doc.name}"?`)) return
@@ -88,8 +88,8 @@ export default function DocumentsPage() {
                         <button
                             onClick={() => setCurrentFolder(null)}
                             className={`px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${!currentFolder
-                                    ? 'bg-blue-100 text-blue-700'
-                                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                ? 'bg-blue-100 text-blue-700'
+                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                                 }`}
                         >
                             All Files
@@ -99,8 +99,8 @@ export default function DocumentsPage() {
                                 key={folder}
                                 onClick={() => setCurrentFolder(folder)}
                                 className={`px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${currentFolder === folder
-                                        ? 'bg-blue-100 text-blue-700'
-                                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                    ? 'bg-blue-100 text-blue-700'
+                                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                                     }`}
                             >
                                 {folder}

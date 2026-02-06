@@ -24,10 +24,6 @@ export default function BillingPage({
     // Check payment status from URL
     const paymentStatus = searchParams['payment'] as string
 
-    useEffect(() => {
-        loadSubscription()
-    }, [])
-
     const loadSubscription = async () => {
         const supabase = createClient()
 
@@ -77,6 +73,10 @@ export default function BillingPage({
             }
         }
     }
+
+    useEffect(() => {
+        loadSubscription()
+    }, [])
 
     const handleUpgrade = async (planId: string) => {
         setLoading(true)
@@ -139,7 +139,7 @@ export default function BillingPage({
                         <h3 className="text-lg font-medium text-gray-900 flex items-center gap-2">
                             Current Status:
                             <span className={`px-2 py-1 rounded-full text-xs font-semibold uppercase ${subscriptionStatus === 'active' ? 'bg-green-100 text-green-800' :
-                                    subscriptionStatus === 'trial' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'
+                                subscriptionStatus === 'trial' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'
                                 }`}>
                                 {subscriptionStatus || 'Loading...'}
                             </span>

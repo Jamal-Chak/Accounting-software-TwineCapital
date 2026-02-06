@@ -6,27 +6,31 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 
 export default function EcommerceSyncPage() {
-    const [platforms, setPlatforms] = useState([
-        { id: 'shopify', name: 'Shopify', status: 'Connected', lastSync: '10 mins ago', icon: '/logos/shopify.svg' }, // Using text fallback if icon missing
-        { id: 'woocommerce', name: 'WooCommerce', status: 'Not Connected', lastSync: '-', icon: '/logos/woo.svg' },
-        { id: 'magento', name: 'Magento', status: 'Not Connected', lastSync: '-', icon: '/logos/magento.svg' },
-    ])
-    const [syncing, setSyncing] = useState(false)
+    const [platforms, setPlatforms] = useState(() => {
+        const initialPlatforms = [
+            { id: 'shopify', name: 'Shopify', status: 'Connected', lastSync: '10 mins ago', icon: '/logos/shopify.svg' },
+            { id: 'woocommerce', name: 'WooCommerce', status: 'Not Connected', lastSync: '-', icon: '/logos/woo.svg' },
+            { id: 'magento', name: 'Magento', status: 'Not Connected', lastSync: '-', icon: '/logos/magento.svg' },
+        ]
 
-    // Load connection status
-    useEffect(() => {
-        const savedState = localStorage.getItem('ecommerce_connections')
-        if (savedState) {
-            try {
-                const connections = JSON.parse(savedState)
-                setPlatforms(prev => prev.map(p => ({
-                    ...p,
-                    status: connections[p.id] ? 'Connected' : 'Not Connected',
-                    lastSync: connections[p.id] ? 'Just now' : '-'
-                })))
-            } catch (e) { console.error(e) }
+        if (typeof window !== 'undefined') {
+            const savedState = localStorage.getItem('ecommerce_connections')
+            if (savedState) {
+                try {
+                    const connections = JSON.parse(savedState)
+                    return initialPlatforms.map(p => ({
+                        ...p,
+                        status: connections[p.id] ? 'Connected' : 'Not Connected',
+                        lastSync: connections[p.id] ? 'Just now' : '-'
+                    }))
+                } catch (e) {
+                    console.error(e)
+                }
+            }
         }
-    }, [])
+        return initialPlatforms
+    })
+    const [syncing, setSyncing] = useState(false)
 
     const toggleConnection = (id: string) => {
         setPlatforms(prev => {

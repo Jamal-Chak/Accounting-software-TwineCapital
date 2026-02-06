@@ -1,0 +1,62 @@
+[
+  {
+    "file": "C:\\Users\\Tessl\\Documents\\TwineCapital\\web\\src\\app\\(app)\\analytics\\health\\page.tsx",
+    "line": 69,
+    "message": "`'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`.",
+    "ruleId": "react/no-unescaped-entities"
+  },
+  {
+    "file": "C:\\Users\\Tessl\\Documents\\TwineCapital\\web\\src\\app\\(app)\\apps\\ecommerce\\page.tsx",
+    "line": 22,
+    "message": "Error: Calling setState synchronously within an effect can trigger cascading renders\n\nEffects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:\n* Update external systems with the latest state from React.\n* Subscribe for updates from some external system, calling setState in a callback function when external state changes.\n\nCalling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).\n\nC:\\Users\\Tessl\\Documents\\TwineCapital\\web\\src\\app\\(app)\\apps\\ecommerce\\page.tsx:22:17\n  20 |             try {\n  21 |                 const connections = JSON.parse(savedState)\n> 22 |                 setPlatforms(prev => prev.map(p => ({\n     |                 ^^^^^^^^^^^^ Avoid calling setState() directly within an effect\n  23 |                     ...p,\n  24 |                     status: connections[p.id] ? 'Connected' : 'Not Connected',\n  25 |                     lastSync: connections[p.id] ? 'Just now' : '-'",
+    "ruleId": "react-hooks/set-state-in-effect"
+  },
+  {
+    "file": "C:\\Users\\Tessl\\Documents\\TwineCapital\\web\\src\\app\\(app)\\apps\\whatsapp\\page.tsx",
+    "line": 16,
+    "message": "Error: Calling setState synchronously within an effect can trigger cascading renders\n\nEffects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:\n* Update external systems with the latest state from React.\n* Subscribe for updates from some external system, calling setState in a callback function when external state changes.\n\nCalling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).\n\nC:\\Users\\Tessl\\Documents\\TwineCapital\\web\\src\\app\\(app)\\apps\\whatsapp\\page.tsx:16:13\n  14 |         const saved = localStorage.getItem('whatsapp_connected')\n  15 |         if (saved === 'true') {\n> 16 |             setConnected(true)\n     |             ^^^^^^^^^^^^ Avoid calling setState() directly within an effect\n  17 |             const savedPhone = localStorage.getItem('whatsapp_phone')\n  18 |             if (savedPhone) setPhoneNumber(savedPhone)\n  19 |         }",
+    "ruleId": "react-hooks/set-state-in-effect"
+  },
+  {
+    "file": "C:\\Users\\Tessl\\Documents\\TwineCapital\\web\\src\\app\\(app)\\apps\\whatsapp\\page.tsx",
+    "line": 168,
+    "message": "`\"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.",
+    "ruleId": "react/no-unescaped-entities"
+  },
+  {
+    "file": "C:\\Users\\Tessl\\Documents\\TwineCapital\\web\\src\\app\\(app)\\apps\\whatsapp\\page.tsx",
+    "line": 168,
+    "message": "`\"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.",
+    "ruleId": "react/no-unescaped-entities"
+  },
+  {
+    "file": "C:\\Users\\Tessl\\Documents\\TwineCapital\\web\\src\\app\\(app)\\billing\\page.tsx",
+    "line": 28,
+    "message": "Error: Cannot access variable before it is declared\n\n`loadSubscription` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.\n\nC:\\Users\\Tessl\\Documents\\TwineCapital\\web\\src\\app\\(app)\\billing\\page.tsx:28:9\n  26 |\n  27 |     useEffect(() => {\n> 28 |         loadSubscription()\n     |         ^^^^^^^^^^^^^^^^ `loadSubscription` accessed before it is declared\n  29 |     }, [])\n  30 |\n  31 |     const loadSubscription = async () => {\n\nC:\\Users\\Tessl\\Documents\\TwineCapital\\web\\src\\app\\(app)\\billing\\page.tsx:31:5\n  29 |     }, [])\n  30 |\n> 31 |     const loadSubscription = async () => {\n     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n> 32 |         const supabase = createClient()\n     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n> 33 |\n     ???\n     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n> 78 |         }\n     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n> 79 |     }\n     | ^^^^^^ `loadSubscription` is declared here\n  80 |\n  81 |     const handleUpgrade = async (planId: string) => {\n  82 |         setLoading(true)",
+    "ruleId": "react-hooks/immutability"
+  },
+  {
+    "file": "C:\\Users\\Tessl\\Documents\\TwineCapital\\web\\src\\app\\(app)\\documents\\page.tsx",
+    "line": 17,
+    "message": "Error: Cannot access variable before it is declared\n\n`loadDocuments` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.\n\nC:\\Users\\Tessl\\Documents\\TwineCapital\\web\\src\\app\\(app)\\documents\\page.tsx:17:9\n  15 |\n  16 |     useEffect(() => {\n> 17 |         loadDocuments()\n     |         ^^^^^^^^^^^^^ `loadDocuments` accessed before it is declared\n  18 |     }, [currentFolder])\n  19 |\n  20 |     const loadDocuments = async () => {\n\nC:\\Users\\Tessl\\Documents\\TwineCapital\\web\\src\\app\\(app)\\documents\\page.tsx:20:5\n  18 |     }, [currentFolder])\n  19 |\n> 20 |     const loadDocuments = async () => {\n     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n> 21 |         setLoading(true)\n     | ^^^^^^^^^^^^^^^^^^^^^^^^\n> 22 |         const data = await getDocuments(currentFolder || undefined)\n     | ^^^^^^^^^^^^^^^^^^^^^^^^\n> 23 |         setDocuments(data)\n     | ^^^^^^^^^^^^^^^^^^^^^^^^\n> 24 |         setLoading(false)\n     | ^^^^^^^^^^^^^^^^^^^^^^^^\n> 25 |     }\n     | ^^^^^^ `loadDocuments` is declared here\n  26 |\n  27 |     const handleDelete = async (doc: Document) => {\n  28 |         if (!confirm(`Are you sure you want to delete \"${doc.name}\"?`)) return",
+    "ruleId": "react-hooks/immutability"
+  },
+  {
+    "file": "C:\\Users\\Tessl\\Documents\\TwineCapital\\web\\src\\app\\(app)\\documents\\scan\\page.tsx",
+    "line": 73,
+    "message": "`'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`.",
+    "ruleId": "react/no-unescaped-entities"
+  },
+  {
+    "file": "C:\\Users\\Tessl\\Documents\\TwineCapital\\web\\src\\app\\(app)\\invoices\\[id]\\page.tsx",
+    "line": 31,
+    "message": "Error: Cannot access variable before it is declared\n\n`loadData` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.\n\nC:\\Users\\Tessl\\Documents\\TwineCapital\\web\\src\\app\\(app)\\invoices\\[id]\\page.tsx:31:13\n  29 |     useEffect(() => {\n  30 |         if (id) {\n> 31 |             loadData()\n     |             ^^^^^^^^ `loadData` accessed before it is declared\n  32 |         }\n  33 |     }, [id])\n  34 |\n\nC:\\Users\\Tessl\\Documents\\TwineCapital\\web\\src\\app\\(app)\\invoices\\[id]\\page.tsx:35:5\n  33 |     }, [id])\n  34 |\n> 35 |     const loadData = async () => {\n     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n> 36 |         setLoading(true)\n     | ^^^^^^^^^^^^^^^^^^^^^^^^\n> 37 |         const invoiceData = await getInvoice(id)\n     ???\n     | ^^^^^^^^^^^^^^^^^^^^^^^^\n> 44 |         setLoading(false)\n     | ^^^^^^^^^^^^^^^^^^^^^^^^\n> 45 |     }\n     | ^^^^^^ `loadData` is declared here\n  46 |\n  47 |     const formatCurrency = (amount: number) => {\n  48 |         return new Intl.NumberFormat('en-ZA', {",
+    "ruleId": "react-hooks/immutability"
+  },
+  {
+    "file": "C:\\Users\\Tessl\\Documents\\TwineCapital\\web\\src\\app\\(app)\\invoices\\whatsapp-modal.tsx",
+    "line": 21,
+    "message": "Error: Calling setState synchronously within an effect can trigger cascading renders\n\nEffects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:\n* Update external systems with the latest state from React.\n* Subscribe for updates from some external system, calling setState in a callback function when external state changes.\n\nCalling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).\n\nC:\\Users\\Tessl\\Documents\\TwineCapital\\web\\src\\app\\(app)\\invoices\\whatsapp-modal.tsx:21:9\n  19 |\n  20 |     useEffect(() => {\n> 21 |         setEditedMessage(message)\n     |         ^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect\n  22 |         setEditedPhone(phoneNumber)\n  23 |     }, [message, phoneNumber])\n  24 |",
+    "ruleId": "react-hooks/set-state-in-effect"
+  }
+]
